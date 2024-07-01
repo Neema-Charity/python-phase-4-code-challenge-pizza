@@ -69,7 +69,7 @@ def delete_restaurant(id):
         db.session.commit()
         response = make_response(
             jsonify({"message": "Restaurant deleted"}),
-            200
+            204
         )
         return response
     else:
@@ -100,41 +100,32 @@ def get_pizzas():
 @app.route('/restaurant_pizzas', methods=['POST'])
 def create_restaurant_pizza():
     try:
-        # Retrieve form data
-        restaurant_id = request.form.get('restaurant_id')
-        pizza_id = request.form.get('pizza_id')
-        price = request.form.get('price')
+        data = request.form
 
         # Ensure all required fields are present
-        if not restaurant_id or not pizza_id or not price:
-            missing_fields = []
-            if not restaurant_id:
-                missing_fields.append('restaurant_id')
-            if not pizza_id:
-                missing_fields.append('pizza_id')
-            if not price:
-                missing_fields.append('price')
-            return make_response(jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400)
+        required_fields = ['restaurant_id', 'pizza_id', 'price']
+        for field in required_fields:
+            if field not in data:
+                raise KeyError(field)
 
-        # Create new RestaurantPizza object
         new_restaurant_pizza = RestaurantPizza(
-            restaurant_id=restaurant_id,
-            pizza_id=pizza_id,
-            price=price
+            restaurant_id=data['restaurant_id'],
+            pizza_id=data['pizza_id'],
+            price=data['price']
         )
 
         db.session.add(new_restaurant_pizza)
         db.session.commit()
 
-        # Serialize the new object
         restaurant_pizza_dict = new_restaurant_pizza.to_dict()
 
-        # Create and return response
         response = make_response(
             jsonify(restaurant_pizza_dict), 
             201
         )
         return response
+    except KeyError as e:
+        return make_response(jsonify({"error": f"Missing key: {e.args[0]}"}), 400)
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 400)
 
