@@ -97,13 +97,14 @@ def get_pizzas():
 
 @app.route('/restaurant_pizzas', methods=['POST'])
 def create_restaurant_pizza():
-    data = request.get_json()
+    # data = request.get_json()
     try:
         new_restaurant_pizza = RestaurantPizza(
             restaurant_id=request.form.get('restaurant_id'),
             pizza_id=request.form.get('pizza_id'),
             price=request.form.get('price')
         )
+        print(new_restaurant_pizza)
         db.session.add(new_restaurant_pizza)
         db.session.commit()
         restaurant_pizza_dict = new_restaurant_pizza.to_dict()
