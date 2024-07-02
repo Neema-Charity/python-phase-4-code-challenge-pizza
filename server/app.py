@@ -102,7 +102,6 @@ def create_restaurant_pizza():
     try:
         data = request.form
 
-        # Ensure all required fields are present
         required_fields = ['restaurant_id', 'pizza_id', 'price']
         for field in required_fields:
             if field not in data:
@@ -124,10 +123,12 @@ def create_restaurant_pizza():
             201
         )
         return response
-    except KeyError as e:
-        return make_response(jsonify({"error": f"Missing key: {e.args[0]}"}), 400)
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({"errors": ["validation errors"]}), 400
     except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 400)
+        db.session.rollback()
+        return jsonify({"errors": ["validation errors"]}), 400
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
