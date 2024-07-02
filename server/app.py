@@ -95,6 +95,27 @@ def get_pizzas():
     )
     return response
 
+@app.route('/pizzas/<int:id>', methods=['GET'])
+def get_pizza_id(id):
+    pizza = Pizza.query.get(id)
+    if pizza:
+        pizza_dict = {
+            "ingredients": pizza.ingredients,
+            "id": pizza.id,
+            "name": pizza.name
+        }
+        response = make_response(
+            jsonify(pizza_dict),
+            200
+        )
+        return response
+    else:
+        response = make_response(
+            jsonify({"error": "Pizza not found"}),
+            404
+        )
+        return response
+
 
 
 @app.route('/restaurant_pizzas', methods=['POST'])
