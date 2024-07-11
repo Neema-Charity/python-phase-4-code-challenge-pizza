@@ -47,7 +47,8 @@ def get_restaurant_id(id):
         restaurant_dict = {
             "address": restaurant.address,
             "id": restaurant.id,
-            "name": restaurant.name
+            "name": restaurant.name,
+            "restaurant_pizzas": restaurant.restaurant_pizzas 
         }
         response = make_response(
             jsonify(restaurant_dict),
