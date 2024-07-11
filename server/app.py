@@ -42,7 +42,7 @@ def get_restaurants():
 
 @app.route('/restaurants/<int:id>', methods=['GET'])
 def get_restaurant_id(id):
-    restaurant = Restaurant.query.get(id)
+    restaurant = Restaurant.query.filter_by(id=id).first()
     if restaurant:
         restaurant_dict = {
             "address": restaurant.address,
@@ -120,36 +120,16 @@ def get_pizza_id(id):
 
 @app.route('/restaurant_pizzas', methods=['POST'])
 def create_restaurant_pizza():
+    data = request.json
     try:
-        data = request.form
-
-        required_fields = ['restaurant_id', 'pizza_id', 'price']
-        for field in required_fields:
-            if field not in data:
-                raise KeyError(field)
-
-        new_restaurant_pizza = RestaurantPizza(
-            restaurant_id=data['restaurant_id'],
-            pizza_id=data['pizza_id'],
-            price=data['price']
-        )
-
-        db.session.add(new_restaurant_pizza)
+        rp = RestaurantPizza(price=data.get('price'), restaurant_id=data.get('restaurant_id'), pizza_id=data.get('pizza_id'))
+        db.session.add(rp)
         db.session.commit()
-
-        restaurant_pizza_dict = new_restaurant_pizza.to_dict()
-
-        response = make_response(
-            jsonify(restaurant_pizza_dict), 
-            201
-        )
-        return response
-    except ValueError as e:
-        db.session.rollback()
-        return jsonify({"errors": ["validation errors"]}), 400
+        return rp.to_dict(), 201
     except Exception as e:
-        db.session.rollback()
-        return jsonify({"errors": ["validation errors"]}), 400
+        print(e)
+        return {'errors':["validation errors"]}, 400
+    
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
